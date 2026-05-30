@@ -1,0 +1,9 @@
+# .github/metadata.yaml
+description: "Effect-based backtracking for parsers (Parser.Backtrack)."
+topics:
+  - primitives
+  - parser
+  - effect
+homepage: "https://swift-institute.org"
+readme:
+  family: E
