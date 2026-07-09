@@ -2,12 +2,11 @@ import Parser_Backtrack_Primitives
 import Parser_Primitives_Test_Support
 import Testing
 
-@Suite("Parser.Backtrack Tests")
-struct ParserBacktrackTests {
+@Suite struct `Parser.Backtrack Tests` {
     @Suite struct Unit {}
 }
 
-extension ParserBacktrackTests.Unit {
+extension `Parser.Backtrack Tests`.Unit {
     /// A trivial error type for exercising the effect's `Failure` parameter.
     enum TestError: Swift.Error {
         case noAlternativeMatched
