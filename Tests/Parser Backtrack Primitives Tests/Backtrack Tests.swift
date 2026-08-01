@@ -4,11 +4,13 @@ import Testing
 
 @Suite struct `Parser.Backtrack Tests` {
     @Suite struct Unit {}
+    @Suite struct `Edge Case` {}
+    @Suite struct Integration {}
 }
 
 extension `Parser.Backtrack Tests`.Unit {
     /// A trivial error type for exercising the effect's `Failure` parameter.
-    enum TestError: Swift.Error {
+    private enum TestError: Swift.Error {
         case noAlternativeMatched
     }
 
@@ -45,7 +47,7 @@ extension `Parser.Backtrack Tests`.Unit {
     }
 
     @Test
-    func `stored alternatives produce expected outputs`() throws(TestError) {
+    private func `stored alternatives produce expected outputs`() throws(TestError) {
         let effect = Backtrack(
             first: { _ in 7 },
             second: { _ in 9 }

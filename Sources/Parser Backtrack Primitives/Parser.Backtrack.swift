@@ -84,23 +84,8 @@ extension Parser {
     /// `swift-effect-primitives/.../Effect.Continuation.One.swift` lines 39-49
     /// — task-allocator / `Optional<~Copyable>` / `@Sendable` capture interaction).
     public struct Backtrack<Input: Input_Primitives.Input.`Protocol`, Output: Sendable, E: Swift.Error>: Effect.`Protocol` {
-        /// A parser alternative: parses an `Output` value from the input, throwing `E` on failure.
-        public typealias Alternative = (inout Input) throws(E) -> Output
-
-        /// The arguments provided when performing this effect — the alternatives to try.
-        public typealias Arguments = [Alternative]
-
-        /// The success value type returned when the effect is handled — the parsed `Output`.
-        public typealias Value = Output
-
-        /// The error type that an alternative may throw.
-        public typealias Failure = E
-
         /// The alternatives to try, in order.
         public let alternatives: [Alternative]
-
-        /// The arguments for this effect (the alternatives).
-        public var arguments: [Alternative] { alternatives }
 
         /// Creates a backtrack effect with the given alternatives.
         ///
@@ -123,4 +108,21 @@ extension Parser {
             self.alternatives = [first, second]
         }
     }
+}
+
+extension Parser.Backtrack {
+    /// A parser alternative: parses an `Output` value from the input, throwing `E` on failure.
+    public typealias Alternative = (inout Input) throws(E) -> Output
+
+    /// The arguments provided when performing this effect — the alternatives to try.
+    public typealias Arguments = [Alternative]
+
+    /// The success value type returned when the effect is handled — the parsed `Output`.
+    public typealias Value = Output
+
+    /// The error type that an alternative may throw.
+    public typealias Failure = E
+
+    /// The arguments for this effect (the alternatives).
+    public var arguments: [Alternative] { alternatives }
 }
