@@ -83,7 +83,11 @@ extension Parser {
     /// in `Effect.Continuation.One` (see
     /// `swift-effect-primitives/.../Effect.Continuation.One.swift` lines 39-49
     /// — task-allocator / `Optional<~Copyable>` / `@Sendable` capture interaction).
-    public struct Backtrack<Input: Input_Primitives.Input.`Protocol`, Output: Sendable, E: Swift.Error>: Effect.`Protocol` {
+    public struct Backtrack<
+        Input: Input_Primitives.Input.`Protocol`,
+        Output: Sendable,
+        E: Swift.Error
+    >: Effect.`Protocol` {
         /// The alternatives to try, in order.
         public let alternatives: [Alternative]
 
