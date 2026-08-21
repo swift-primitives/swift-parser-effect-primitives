@@ -9,7 +9,7 @@ import Testing
 }
 
 extension `Parser.Backtrack Tests`.Unit {
-    /// A trivial error type for exercising the effect's `Failure` parameter.
+
     private enum TestError: Swift.Error {
         case noAlternativeMatched
     }

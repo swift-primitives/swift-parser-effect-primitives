@@ -1,109 +1,20 @@
-// ===----------------------------------------------------------------------===//
-//
-// This source file is part of the swift-parsing open source project
-//
-// Copyright (c) 2025 Coen ten Thije Boonkkamp and the swift-parsing project authors
-// Licensed under Apache License v2.0
-//
-// See LICENSE for license information
-//
-// ===----------------------------------------------------------------------===//
-
 public import Effect_Primitives
 
 extension Parser {
-    /// Effect for non-deterministic choice in parsing.
-    ///
-    /// When performed, this effect suspends the current parse and allows
-    /// a handler to explore multiple alternatives using multi-shot continuations.
-    /// This enables declarative backtracking without manual checkpoint management.
-    ///
-    /// ## Motivation
-    ///
-    /// Traditional backtracking in `OneOf` combinators uses manual checkpoint/restore:
-    ///
-    /// ```swift
-    /// // Current approach (manual)
-    /// let saved = input
-    /// do {
-    ///     return try parser1.parse(&input)
-    /// } catch {
-    ///     input = saved  // Manual restore
-    ///     return try parser2.parse(&input)
-    /// }
-    /// ```
-    ///
-    /// With effects, backtracking becomes declarative:
-    ///
-    /// ```swift
-    /// // Effect-based approach
-    /// let choice = try await Effect.perform(Parser.Backtrack(
-    ///     alternatives: [parser1, parser2],
-    ///     checkpoint: input.checkpoint
-    /// ))
-    /// ```
-    ///
-    /// ## Handler Semantics
-    ///
-    /// Handlers use `Effect.Continuation.Multi` to explore alternatives:
-    ///
-    /// ```swift
-    /// struct BacktrackHandler: Effect.Handler.Protocol {
-    ///     typealias Handled = Parser.Backtrack<MyInput, MyOutput>
-    ///
-    ///     func handle(
-    ///         _ effect: Handled,
-    ///         continuation: consuming Effect.Continuation.One<MyOutput, Parser.Error>
-    ///     ) async {
-    ///         for alternative in effect.alternatives {
-    ///             var input = effect.checkpoint.restore()
-    ///             do {
-    ///                 let result = try alternative(&input)
-    ///                 await continuation.resume(returning: result)
-    ///                 return
-    ///             } catch {
-    ///                 continue  // Try next alternative
-    ///             }
-    ///         }
-    ///         await continuation.resume(throwing: Parser.Error.noAlternativeMatched)
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// ## Use Cases
-    ///
-    /// - **Parser combinators**: `OneOf`, `Optional`, ambiguous grammars
-    /// - **Search**: Explore multiple paths, backtrack on failure
-    /// - **Testing**: Observe which alternatives were tried
-    /// - **Profiling**: Measure backtracking frequency
-    ///
-    /// ## Constraint Rationale
-    ///
-    /// `Output: Sendable` is retained pending an upstream compiler-bug workaround
-    /// in `Effect.Continuation.One` (see
-    /// `swift-effect-primitives/.../Effect.Continuation.One.swift` lines 39-49
-    /// — task-allocator / `Optional<~Copyable>` / `@Sendable` capture interaction).
+
     public struct Backtrack<
         Input: Input_Primitives.Input.`Protocol`,
         Output: Sendable,
         E: Swift.Error
     >: Effect.`Protocol` {
-        /// The alternatives to try, in order.
+
         public let alternatives: [Alternative]
 
-        /// Creates a backtrack effect with the given alternatives.
-        ///
-        /// - Parameter alternatives: Closures representing parser alternatives.
         @inlinable
         public init(alternatives: [Alternative]) {
             self.alternatives = alternatives
         }
 
-        /// Creates a backtrack effect from two parsers.
-        ///
-        /// - Parameters:
-        ///   - first: The first parser to try.
-        ///   - second: The fallback parser if the first fails.
         @inlinable
         public init(
             first: @escaping Alternative,
@@ -115,18 +26,14 @@ extension Parser {
 }
 
 extension Parser.Backtrack {
-    /// A parser alternative: parses an `Output` value from the input, throwing `E` on failure.
+
     public typealias Alternative = (inout Input) throws(E) -> Output
 
-    /// The arguments provided when performing this effect — the alternatives to try.
     public typealias Arguments = [Alternative]
 
-    /// The success value type returned when the effect is handled — the parsed `Output`.
     public typealias Value = Output
 
-    /// The error type that an alternative may throw.
     public typealias Failure = E
 
-    /// The arguments for this effect (the alternatives).
     public var arguments: [Alternative] { alternatives }
 }
